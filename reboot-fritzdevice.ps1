@@ -8,7 +8,7 @@
 	Specifies device to be rebooted
 .PARAMETER customFQDN
 	To be used for option 4 to predefine the customFQDN
-.EXAMPLES
+.EXAMPLE
 	PS> ./reboot-fritzdevice -option 1
 	PS> ./reboot-fritzdevice -option 4 -customFQDN fritz.repeater2
 .NOTES
