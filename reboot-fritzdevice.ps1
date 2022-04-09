@@ -1,4 +1,4 @@
-﻿<#
+<#
 .SYNOPSIS
 	Reboots  FRITZ! devices
 .DESCRIPTION
@@ -11,7 +11,7 @@
 	Author: B0rKaS / License: CC0
 #>
 
-param([string]$option)
+param([string]$option, [string]$customFQDN)
 
 # PARAMETERS --------------------------
 
@@ -28,25 +28,33 @@ do {
     if(!$option) {
         Write-Host "`nWhich FRITZ! Device you want to reboot?`n`n1: Router (FQDN: $FQDN_FritzBox)`n2: Repeater (FQDN: $FQDN_FritzRepeater)`n3: Repeater and Router`n4: Custom (insert a custom FQDN)"
         Write-Host "`nChoose (1-4): " -NoNewline 
-        $option = Read-Host
+        $action = Read-Host
+    } else {
+        if($option -ge 1 -and $option -le 4) {
+            $action = $option
+        }
     }
-    
-    switch ($option) {
+
+    switch ($action) {
         1 {
-            $FB_FQDN = $FQDN_FritzBox
+            $targetFQDN = $FQDN_FritzBox
             $validInput = $true
         }
         2 {
-            $FB_FQDN = $FQDN_FritzRepeater
+            $targetFQDN = $FQDN_FritzRepeater
             $validInput = $true
         }
         3 {
-            $FB_FQDN = @($FQDN_FritzRepeater, $FQDN_FritzBox)
+            $targetFQDN = @($FQDN_FritzRepeater, $FQDN_FritzBox)
             $validInput = $true
         }
         4 {
-            Write-Host "`nInsert custom FQDN (without protocol, like 'fritz.box'): " -NoNewline
-            $FB_FQDN = Read-Host
+            if($customFQDN) {
+                $targetFQDN = $customFQDN
+            } else {
+                Write-Host "`nInsert custom FQDN (without protocol, like 'fritz.box'): " -NoNewline
+                $targetFQDN = Read-Host
+            }
             $validInput = $true
         }
         default {
@@ -83,7 +91,7 @@ if($cred) {
     $cred = New-Object System.Management.Automation.PSCredential -ArgumentList ($username, $password)
 }
 
-foreach($FQDN in $FB_FQDN){
+foreach($FQDN in $targetFQDN){
     try {
         $headers = @{}
         $headers.Add("Content-Type","text/xml; charset='utf-8'")
@@ -102,5 +110,7 @@ foreach($FQDN in $FB_FQDN){
     }
 }
 
-Write-Host "`nPress any key to leave script..."
-$Host.UI.RawUI.ReadKey("NoEcho,IncludeKeyDown")
+if(!$option -or ($response.StatusCode -ne 200) -or ($username -and $password)) {
+    Write-Host "`nPress any key to leave script..."
+    $key = $Host.UI.RawUI.ReadKey("NoEcho,IncludeKeyDown")
+}
