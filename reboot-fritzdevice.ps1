@@ -8,8 +8,12 @@
 	Specifies device to be rebooted
 .PARAMETER customFQDN
 	To be used for option 4 to predefine the customFQDN
-.PARAMETER sameCredentialsForAllDevices
-    If the FRITZ!Devices are configured with different credentials, set this parameter to $false
+.PARAMETER useCredentialManager
+    Activate the option to use the Windows Credential Manager
+.PARAMETER winCredStoreName
+    The name of the credential store (of the Windows Credential Manager) you want to use
+.PARAMETER consistentCredentials
+    If your FRITZ!Devices are configured with different credentials, set this parameter to $false
 .EXAMPLE
 	PS> ./reboot-fritzdevice -option 1
 	PS> ./reboot-fritzdevice -option 4 -customFQDN fritz.repeater2
@@ -22,11 +26,13 @@ param([string]$option, [string]$customFQDN)
 
 # PARAMETERS --------------------------
 
-$winCredStoreName = "fritz"
 $FQDN_FritzBox = "fritz.box"
 $FQDN_FritzRepeater = "fritz.repeater"
 $FQDN_MultiDevices = @($FQDN_FritzBox, $FQDN_FritzRepeater)
-$sameCredentialsForAllDevices = $true
+
+$useCredentialManager = $true
+$winCredStoreName = "fritz"
+$consistentCredentials = $true
 
 # -------------------------------------
 
@@ -76,7 +82,7 @@ do {
     }
 } while(!$validInput)
 
-if($sameCredentialsForAllDevices) {
+if($useCredentialManager -and $consistentCredentials) {
     try{
         Write-Host "`nChecking if module 'CredentialManager' is already installed" -ForegroundColor Yellow
         $credModule = Find-Module CredentialManager -MinimumVersion 2.0 -ErrorAction SilentlyContinue
@@ -101,7 +107,7 @@ if($sameCredentialsForAllDevices) {
 foreach($FQDN in $targetFQDN){    
     if(!$cred) {
         Write-Host "`nPlease insert administrative credentials for your FRITZ! Device ($FQDN)"
-        Write-Host "`nUsername: " -NoNewline
+        Write-Host "Username: " -NoNewline
         $username = Read-Host
     
         Write-Host "Password: " -NoNewline
@@ -127,7 +133,7 @@ foreach($FQDN in $targetFQDN){
         Write-Host "`n"$PSItem.Exception -ForegroundColor Red
     }
 
-    if(!$sameCredentialsForAllDevices) {
+    if(!$consistentCredentials) {
         $cred = $null
     }
 }
