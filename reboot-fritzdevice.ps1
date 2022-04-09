@@ -3,7 +3,7 @@
 	Reboots  FRITZ! devices
 .DESCRIPTION
 	This PowerShell script reboots different FRITZ! devices in the Local Area Network (LAN)
-	(Options: 1: Router, 2: Repeater, 3: Router & Repeater, 4: Custom FQDN)
+	(Options: 1: Router, 2: Repeater, 3: Multi-Devices (Default: Router & Repeater), 4: Custom FQDN)
 .PARAMETER option
 	Specifies device to be rebooted
 .PARAMETER customFQDN
@@ -24,6 +24,7 @@ param([string]$option, [string]$customFQDN)
 $winCredStoreName = "fritz"
 $FQDN_FritzBox = "fritz.box"
 $FQDN_FritzRepeater = "fritz.repeater"
+$FQDN_MultiDevices = @($FQDN_FritzBox, $FQDN_FritzRepeater)
 
 # -------------------------------------
 
@@ -32,7 +33,7 @@ Write-Host "Info: This script reboots specific FRITZ! Devices automatically (if 
 $validInput = $false
 do {
     if(!$option) {
-        Write-Host "`nWhich FRITZ! Device you want to reboot?`n`n1: Router (FQDN: $FQDN_FritzBox)`n2: Repeater (FQDN: $FQDN_FritzRepeater)`n3: Router & Repeater  (FQDNs: $FQDN_FritzBox, $FQDN_FritzRepeater)`n4: Custom (insert a custom FQDN)"
+        Write-Host "`nWhich FRITZ! Device you want to reboot?`n`n1: Router (FQDN: $FQDN_FritzBox)`n2: Repeater (FQDN: $FQDN_FritzRepeater)`n3: Multi-Devices (Default: $FQDN_FritzBox & $FQDN_FritzRepeater)`n4: Custom (insert a custom FQDN)"
         Write-Host "`nChoose (1-4): " -NoNewline 
         $action = Read-Host
     } else {
@@ -51,7 +52,7 @@ do {
             $validInput = $true
         }
         3 {
-            $targetFQDN = @($FQDN_FritzBox, $FQDN_FritzRepeater)
+            $targetFQDN = $FQDN_MultiDevices
             $validInput = $true
         }
         4 {
