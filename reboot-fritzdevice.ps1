@@ -3,10 +3,14 @@
 	Reboots  FRITZ! devices
 .DESCRIPTION
 	This PowerShell script reboots different FRITZ! devices in the Local Area Network (LAN)
+	(Options: 1: Router, 2: Repeater, 3: Router & Repeater, 4: Custom FQDN)
 .PARAMETER option
 	Specifies device to be rebooted
-.EXAMPLE
+.PARAMETER customFQDN
+	To be used for option 4 to predefine the customFQDN
+.EXAMPLES
 	PS> ./reboot-fritzdevice -option 1
+	PS> ./reboot-fritzdevice -option 4 -customFQDN fritz.repeater2
 .NOTES
 	Author: B0rKaS / License: CC0
 #>
