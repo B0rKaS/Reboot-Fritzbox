@@ -39,6 +39,10 @@ do {
     } else {
         if($option -ge 1 -and $option -le 4) {
             $action = $option
+        } else {
+            Write-Host "`nPredefined option has to be between 1 and 4 - modify parameter to continue...`nPress any key to leave script..." -ForegroundColor Red
+            $key = $Host.UI.RawUI.ReadKey("NoEcho,IncludeKeyDown")
+            exit
         }
     }
 
