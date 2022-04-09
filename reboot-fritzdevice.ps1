@@ -71,13 +71,13 @@ do {
 
 try{
     Write-Host "`nChecking if module 'CredentialManager' is already installed" -ForegroundColor Yellow
-    $credModule = Find-Module CredentialManager -ErrorAction SilentlyContinue
+    $credModule = Find-Module CredentialManager -MinimumVersion 2.0 -ErrorAction SilentlyContinue
 
     if($credModule) {
         Write-Host "Found module 'CredentialManager'" -ForegroundColor Green
     } else {
         Write-Host "Didn't found module 'CredentialManager' - installing..." -ForegroundColor Red
-        Install-Module CredentialManager -Scope CurrentUser
+        Install-Module CredentialManager -Scope CurrentUser -MinimumVersion 2.0
     }
 
     $cred = Get-StoredCredential -Target $winCredStoreName
