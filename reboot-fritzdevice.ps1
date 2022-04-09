@@ -30,7 +30,7 @@ Write-Host "Info: This script reboots specific FRITZ! Devices automatically (if 
 $validInput = $false
 do {
     if(!$option) {
-        Write-Host "`nWhich FRITZ! Device you want to reboot?`n`n1: Router (FQDN: $FQDN_FritzBox)`n2: Repeater (FQDN: $FQDN_FritzRepeater)`n3: Repeater and Router`n4: Custom (insert a custom FQDN)"
+        Write-Host "`nWhich FRITZ! Device you want to reboot?`n`n1: Router (FQDN: $FQDN_FritzBox)`n2: Repeater (FQDN: $FQDN_FritzRepeater)`n3: Router & Repeater  (FQDNs: $FQDN_FritzBox, $FQDN_FritzRepeater)`n4: Custom (insert a custom FQDN)"
         Write-Host "`nChoose (1-4): " -NoNewline 
         $action = Read-Host
     } else {
@@ -49,7 +49,7 @@ do {
             $validInput = $true
         }
         3 {
-            $targetFQDN = @($FQDN_FritzRepeater, $FQDN_FritzBox)
+            $targetFQDN = @($FQDN_FritzBox, $FQDN_FritzRepeater)
             $validInput = $true
         }
         4 {
@@ -68,7 +68,7 @@ do {
 } while(!$validInput)
 
 try{
-    Write-Host "`nCheck if module 'CredentialManager' is already installed" -ForegroundColor Yellow
+    Write-Host "`nChecking if module 'CredentialManager' is already installed" -ForegroundColor Yellow
     $credModule = Find-Module CredentialManager -ErrorAction SilentlyContinue
 
     if($credModule) {
@@ -84,7 +84,7 @@ try{
 if($cred) {
     Write-Host "`nGot credentials from credential-store '$winCredStoreName'" -ForegroundColor Green
 } else {
-    Write-Host "No stored credentials found" -ForegroundColor Yellow
+    Write-Host "No stored credentials found. " -ForegroundColor Yellow
     Write-Host "`nPlease insert administrative credentials for your FRITZ! Devices"
     Write-Host "`nUsername: " -NoNewline
     $username = Read-Host
