@@ -8,6 +8,8 @@
 	Specifies device to be rebooted
 .PARAMETER customFQDN
 	To be used for option 4 to predefine the customFQDN
+.PARAMETER sameCredentialsForAllDevices
+    If the FRITZ!Devices are configured with different credentials, set this parameter to $false
 .EXAMPLE
 	PS> ./reboot-fritzdevice -option 1
 	PS> ./reboot-fritzdevice -option 4 -customFQDN fritz.repeater2
@@ -25,6 +27,7 @@ $winCredStoreName = "fritz"
 $FQDN_FritzBox = "fritz.box"
 $FQDN_FritzRepeater = "fritz.repeater"
 $FQDN_MultiDevices = @($FQDN_FritzBox, $FQDN_FritzRepeater)
+$sameCredentialsForAllDevices = $true
 
 # -------------------------------------
 
@@ -74,35 +77,39 @@ do {
     }
 } while(!$validInput)
 
-try{
-    Write-Host "`nChecking if module 'CredentialManager' is already installed" -ForegroundColor Yellow
-    $credModule = Find-Module CredentialManager -MinimumVersion 2.0 -ErrorAction SilentlyContinue
+if($sameCredentialsForAllDevices) {
+    try{
+        Write-Host "`nChecking if module 'CredentialManager' is already installed" -ForegroundColor Yellow
+        $credModule = Find-Module CredentialManager -MinimumVersion 2.0 -ErrorAction SilentlyContinue
 
-    if($credModule) {
-        Write-Host "Found module 'CredentialManager'" -ForegroundColor Green
-    } else {
-        Write-Host "Didn't found module 'CredentialManager' - installing..." -ForegroundColor Red
-        Install-Module CredentialManager -Scope CurrentUser -MinimumVersion 2.0
+        if($credModule) {
+            Write-Host "Found module 'CredentialManager'" -ForegroundColor Green
+        } else {
+            Write-Host "Didn't found module 'CredentialManager' - installing..." -ForegroundColor Red
+            Install-Module CredentialManager -Scope CurrentUser -MinimumVersion 2.0
+        }
+
+        $cred = Get-StoredCredential -Target $winCredStoreName
+    } catch {Write-Host $PSItem.Exception}
+
+    if($cred) {
+        Write-Host "`nGot credentials from credential-store '$winCredStoreName'" -ForegroundColor Green
     }
-
-    $cred = Get-StoredCredential -Target $winCredStoreName
-} catch {Write-Host $PSItem.Exception}
-
-if($cred) {
-    Write-Host "`nGot credentials from credential-store '$winCredStoreName'" -ForegroundColor Green
-} else {
-    Write-Host "No stored credentials found. " -ForegroundColor Yellow
-    Write-Host "`nPlease insert administrative credentials for your FRITZ! Devices"
-    Write-Host "`nUsername: " -NoNewline
-    $username = Read-Host
-    
-    Write-Host "Password: " -NoNewline
-    $password = Read-Host -AsSecureString
-
-    $cred = New-Object System.Management.Automation.PSCredential -ArgumentList ($username, $password)
 }
 
-foreach($FQDN in $targetFQDN){
+foreach($FQDN in $targetFQDN){    
+    if(!$cred) {
+        if($sameCredentialsForAllDevices){Write-Host "No stored credentials found. " -ForegroundColor Yellow}
+        Write-Host "`nPlease insert administrative credentials for your FRITZ! Device ($FQDN)"
+        Write-Host "`nUsername: " -NoNewline
+        $username = Read-Host
+    
+        Write-Host "Password: " -NoNewline
+        $password = Read-Host -AsSecureString
+
+        $cred = New-Object System.Management.Automation.PSCredential -ArgumentList ($username, $password)
+    }
+
     try {
         $headers = @{}
         $headers.Add("Content-Type","text/xml; charset='utf-8'")
@@ -118,6 +125,10 @@ foreach($FQDN in $targetFQDN){
         }
     } catch {
         Write-Host "`n"$PSItem.Exception -ForegroundColor Red
+    }
+
+    if(!$sameCredentialsForAllDevices) {
+        $cred = $null
     }
 }
 
