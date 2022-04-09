@@ -94,12 +94,13 @@ if($sameCredentialsForAllDevices) {
 
     if($cred) {
         Write-Host "`nGot credentials from credential-store '$winCredStoreName'" -ForegroundColor Green
+    } else {
+        Write-Host "`nNo stored credentials found. " -ForegroundColor Yellow
     }
 }
 
 foreach($FQDN in $targetFQDN){    
     if(!$cred) {
-        if($sameCredentialsForAllDevices){Write-Host "No stored credentials found. " -ForegroundColor Yellow}
         Write-Host "`nPlease insert administrative credentials for your FRITZ! Device ($FQDN)"
         Write-Host "`nUsername: " -NoNewline
         $username = Read-Host
