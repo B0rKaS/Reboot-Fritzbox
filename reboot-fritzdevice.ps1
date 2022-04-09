@@ -12,7 +12,9 @@
 	PS> ./reboot-fritzdevice -option 1
 	PS> ./reboot-fritzdevice -option 4 -customFQDN fritz.repeater2
 .NOTES
-	Author: B0rKaS / License: CC0
+	Scipt-Author: B0rKaS
+	Module: CredentialManager, Author: Dave Garnar, Copyright: (c) 2016 Dave Garnar. All rights reserved.
+.DEPEND
 #>
 
 param([string]$option, [string]$customFQDN)
