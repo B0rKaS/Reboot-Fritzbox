@@ -17,7 +17,7 @@
 .EXAMPLE
 	PS> ./reboot-fritzdevice -option 1
 	PS> ./reboot-fritzdevice -option 4 -customFQDN fritz.repeater2
-	PS> ./reboot-fritzdevice -option 4 -customFQDN 192.168.178.1
+    PS> ./reboot-fritzdevice -option 4 -customFQDN 192.168.178.1
 .NOTES
 	Scipt-Author: B0rKaS
 	Module: CredentialManager, Author: Dave Garnar, Copyright: (c) 2016 Dave Garnar. All rights reserved.
@@ -49,9 +49,9 @@ do {
         if($option -ge 1 -and $option -le 4) {
             $action = $option
         } else {
-            Write-Host "`nPredefined option has to be between 1 and 4 - modify parameter to continue...`nPress any key to leave script..." -ForegroundColor Red
-            $key = $Host.UI.RawUI.ReadKey("NoEcho,IncludeKeyDown")
-            exit
+            Write-Host "`nPredefined option has to be between 1 and 4 - modify parameter and retry" -ForegroundColor Red
+            $option = $null
+            break
         }
     }
 
@@ -133,5 +133,5 @@ foreach($FQDN in $targetFQDN){
 
 if(!$option -or ($response.StatusCode -ne 200) -or ($username -and $password)) {
     Write-Host "`nPress any key to leave script..."
-    $key = $Host.UI.RawUI.ReadKey("NoEcho,IncludeKeyDown")
+    $Host.UI.RawUI.ReadKey("NoEcho,IncludeKeyDown")
 }
