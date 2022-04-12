@@ -3,11 +3,11 @@
 	Reboots FRITZ! devices
 .DESCRIPTION
 	This PowerShell script reboots different FRITZ! devices in the Local Area Network (LAN)
-	(Options: 1: Router, 2: Repeater, 3: Multi-Devices (Default: Router & Repeater), 4: Custom FQDN)
+	(Options: 1: Router, 2: Repeater, 3: Multi-Devices (Default: Router & Repeater), 4: Custom FQDN/IP)
 .PARAMETER option
 	Specifies device to be rebooted
 .PARAMETER customFQDN
-	To be used for option 4 to predefine the customFQDN
+	To be used for option 4 to predefine the customFQDN/IP
 .PARAMETER useCredentialManager
     Activate the option to use the Windows Credential Manager
 .PARAMETER winCredStoreName
@@ -17,6 +17,7 @@
 .EXAMPLE
 	PS> ./reboot-fritzdevice -option 1
 	PS> ./reboot-fritzdevice -option 4 -customFQDN fritz.repeater2
+PS> ./reboot-fritzdevice -option 4 -customFQDN 192.168.178.1
 .NOTES
 	Scipt-Author: B0rKaS
 	Module: CredentialManager, Author: Dave Garnar, Copyright: (c) 2016 Dave Garnar. All rights reserved.
@@ -30,7 +31,7 @@ $FQDN_FritzBox = "fritz.box"
 $FQDN_FritzRepeater = "fritz.repeater"
 $FQDN_MultiDevices = @($FQDN_FritzBox, $FQDN_FritzRepeater)
 
-$useCredentialManager = $true
+$useCredentialManager = $false
 $winCredStoreName = "fritz"
 $consistentCredentials = $true
 
@@ -41,7 +42,7 @@ Write-Host "Info: This script reboots specific FRITZ! Devices automatically (if 
 $validInput = $false
 do {
     if(!$option) {
-        Write-Host "`nWhich FRITZ! Device you want to reboot?`n`n1: Router (FQDN: $FQDN_FritzBox)`n2: Repeater (FQDN: $FQDN_FritzRepeater)`n3: Multi-Devices (Default: $FQDN_FritzBox & $FQDN_FritzRepeater)`n4: Custom (insert a custom FQDN)"
+        Write-Host "`nWhich FRITZ! Device you want to reboot?`n`n1: Router (FQDN: $FQDN_FritzBox)`n2: Repeater (FQDN: $FQDN_FritzRepeater)`n3: Multi-Devices (Default: $FQDN_FritzBox & $FQDN_FritzRepeater)`n4: Custom (insert a custom FQDN/IP)"
         Write-Host "`nChoose (1-4): " -NoNewline 
         $action = Read-Host
     } else {
@@ -71,7 +72,7 @@ do {
             if($customFQDN) {
                 $targetFQDN = $customFQDN
             } else {
-                Write-Host "`nInsert custom FQDN (without protocol, like 'fritz.box'): " -NoNewline
+                Write-Host "`nInsert device FQDN or IP: " -NoNewline
                 $targetFQDN = Read-Host
             }
             $validInput = $true
@@ -84,16 +85,8 @@ do {
 
 if($useCredentialManager -and $consistentCredentials) {
     try{
-        Write-Host "`nChecking if module 'CredentialManager' is already installed" -ForegroundColor Yellow
-        $credModule = Find-Module CredentialManager -MinimumVersion 2.0 -ErrorAction SilentlyContinue
-
-        if($credModule) {
-            Write-Host "Found module 'CredentialManager'" -ForegroundColor Green
-        } else {
-            Write-Host "Didn't found module 'CredentialManager' - installing..." -ForegroundColor Red
-            Install-Module CredentialManager -Scope CurrentUser -MinimumVersion 2.0
-        }
-
+        Write-Host "`nInstalling module 'CredentialManager'" -ForegroundColor Magenta
+        Install-Module CredentialManager -Scope CurrentUser -MinimumVersion 2.0
         $cred = Get-StoredCredential -Target $winCredStoreName
     } catch {Write-Host $PSItem.Exception}
 
