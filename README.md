@@ -1,4 +1,4 @@
-# Reboot-FritzDevice
+# Reboot FRITZ!Box (and other FRITZ! Devices)
 PowerShell-Script to reboot specific FRITZ! Devices in local network.
 
 # Windows Credential Store
